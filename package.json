@@ -1,0 +1,53 @@
+{
+  "name": "gulp-iftp",
+  "version": "0.1.1",
+  "description": "ftp 上传文件到服务器",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "gulp-util": "^3.0.1",
+    "chalk": "^0.5.1",
+    "jsftp": "^1.3.0",
+    "through2": "^0.6.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roninliu/gulp-iftp.git"
+  },
+  "keywords": [
+    "gulp",
+    "gulpplugin",
+    "ftp",
+    "jsftp",
+    "file",
+    "files",
+    "transfer",
+    "protocol",
+    "server",
+    "client",
+    "upload",
+    "deployment",
+    "deploy",
+    "sync"
+  ],
+  "author": {
+    "name": "ronin",
+    "email": "roninliu@foxmail.com",
+    "url": "https://github.com/roninliu"
+  },
+  "license": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/roninliu/gulp-mutuo/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/roninliu/gulp-iftp/issues"
+  },
+  "homepage": "https://github.com/roninliu/gulp-iftp"
+}
