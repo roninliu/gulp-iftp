@@ -1,70 +1,96 @@
 'use strict';
-var path = require('path');
 var gutil = require('gulp-util');
 var through = require('through2');
+var assign = require('object-assign');
 var JSFtp = require('jsftp');
 var chalk = require('chalk');
-
+var fs = require("fs");
+var FtpDeploy = require('ftp-deploy');
 JSFtp = require('jsftp-mkdirp')(JSFtp);
+var ftpDeploy = new FtpDeploy();
+
 
 module.exports = function (options) {
-	options = options ||{};
+	options = assign({}, options);
 	options.verbose = process.argv.indexOf('--verbose') !== -1;
 
 	if (options.host === undefined) {
-		throw new gutil.PluginError('gulp-ftp', '`host` required');
+		throw new gutil.PluginError(gutil.colors.red("[Error]"),gutil.colors.cyan("Host is required"));
+	}
+	if (options.remotePath === undefined) {
+		throw new gutil.PluginError(gutil.colors.red("[Error]"),gutil.colors.cyan("RemotePath is required"));
 	}
 
-	var fileCount = 0;
 	var remotePath = options.remotePath || '';
 	delete options.remotePath;
+
+	var remoteOrder = options.remoteOrder || "/usr/local/imgcache/htdocs";
+	delete options.remoteOrder;
+
+
 
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
 			cb(null, file);
 			return;
 		}
-
 		if (file.isStream()) {
-			cb(new gutil.PluginError('gulp-ftp', 'Streaming not supported'));
+			cb(new gutil.PluginError(gutil.colors.red("[Error]"), gutil.colors.cyan("Streaming not supported")));
 			return;
 		}
-
-		var self = this;
-
-		// have to create a new connection for each file otherwise they conflict
+		var _that = this;
+		var filePath = file.path.slice(0,file.path.lastIndexOf("\\"));
+		var config = {
+		    username:options.user,
+		    password: options.pass,
+		    host: options.host,
+		    port: options.port,
+		    localRoot: filePath,
+		    remoteRoot: remotePath
+		}
 		var ftp = new JSFtp(options);
-
-		var finalRemotePath = path.join('/', remotePath, file.relative).replace(/\\/g, '/');
-
-		ftp.mkdirp(path.dirname(finalRemotePath).replace(/\\/g, '/'), function (err) {
+		var files = [];
+		ftp.mkdirp(remotePath, function (err) {
 			if (err) {
-				cb(new gutil.PluginError('gulp-ftp', err, {fileName: file.path}));
+				cb(new gutil.PluginError(gutil.colors.red("[Error]"), err));
 				return;
+			}else{
+				ftpDeploy.on('uploaded', function (data){
+					var uploadFile = data.filename.replace(/\\/g,"/");
+					if(uploadFile.indexOf("/") == 0){
+						uploadFile = uploadFile.replace("/","");
+					}
+					gutil.log(gutil.colors.green("[SUCCESS]:"),gutil.colors.yellow(uploadFile),gutil.colors.yellow("Uploaded"))
+				    files.push(uploadFile);
+
+				});
+				ftpDeploy.deploy(config, function(err) {
+				    if (err){
+				    	cb(new gutil.PluginError(gutil.colors.red("[Error]"), err));
+				    }else{
+				    	var order = [];
+				    	for(var i=0;i<files.length;i++){
+				    		order.push(remoteOrder+ remotePath + "/"+ files[i]);
+				    		gutil.log(gutil.colors.cyan(remoteOrder + remotePath + "/" + files[i]));
+				    	}
+				    	if(order.length !== 0){
+				    		fs.open("test.txt","w",function(e,fd){
+				    			if(e){
+				    				console.log(e);
+				    			}else{
+				    				for(var i=0;i<order.length;i++){
+							    		fs.writeSync(fd,order[i].toString() + "\r\n");
+							    	}
+				    				
+				    			}
+				    		})
+				    	}
+				    	gutil.log(gutil.colors.green("[INFO]"),gutil.colors.green("All upload has been completed!"))
+						ftp.raw.quit();
+						cb(null, file);
+					}
+				});
 			}
-
-			ftp.put(file.contents, finalRemotePath, function (err) {
-				if (err) {
-					cb(new gutil.PluginError('gulp-ftp', err, {fileName: file.path}));
-					return;
-				}
-
-				fileCount++;
-				ftp.raw.quit();
-				cb(null, file);
-			});
 		});
-
-		if (options.verbose) {
-			gutil.log('gulp-ftp:', chalk.green('✔ ') + file.relative);
-		}
-	}, function (cb) {
-		if (fileCount > 0) {
-			gutil.log('gulp-ftp:', gutil.colors.green(fileCount, fileCount === 1 ? 'file' : 'files', 'uploaded successfully'));
-		} else {
-			gutil.log('gulp-ftp:', gutil.colors.yellow('No files uploaded'));
-		}
-
-		cb();
-	});
+	})
 };
