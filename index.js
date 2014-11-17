@@ -27,8 +27,6 @@ module.exports = function (options) {
 	var remoteOrder = options.remoteOrder || "/usr/local/imgcache/htdocs";
 	delete options.remoteOrder;
 
-
-
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
 			cb(null, file);
@@ -62,7 +60,6 @@ module.exports = function (options) {
 					}
 					gutil.log(gutil.colors.green("[SUCCESS]:"),gutil.colors.yellow(uploadFile),gutil.colors.yellow("Uploaded"))
 				    files.push(uploadFile);
-
 				});
 				ftpDeploy.deploy(config, function(err) {
 				    if (err){
@@ -81,7 +78,6 @@ module.exports = function (options) {
 				    				for(var i=0;i<order.length;i++){
 							    		fs.writeSync(fd,order[i].toString() + "\r\n");
 							    	}
-				    				
 				    			}
 				    		})
 				    	}
