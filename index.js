@@ -17,15 +17,25 @@ module.exports = function (options) {
 	if (options.host === undefined) {
 		throw new gutil.PluginError(gutil.colors.red("[Error]"),gutil.colors.cyan("Host is required"));
 	}
-	if (options.remotePath === undefined) {
+	if (options.remote === undefined) {
 		throw new gutil.PluginError(gutil.colors.red("[Error]"),gutil.colors.cyan("RemotePath is required"));
 	}
 
-	var remotePath = options.remotePath || '';
-	delete options.remotePath;
+	var remotePath = options.remote || '';
+	delete options.remote;
 
-	var remoteOrder = options.remoteOrder || "/usr/local/imgcache/htdocs";
-	delete options.remoteOrder;
+	var remoteOrder = options.froot || "/usr/local/imgcache/htdocs";
+	delete options.froot;
+
+	var loggerFile = options.logger || "logger.txt";
+	delete options.logger;
+
+	var expUrl = options.exp || null;
+	delete options.exp;
+
+	var proUrl = options.pro || null;
+	delete options.pro;
+
 
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
@@ -71,12 +81,30 @@ module.exports = function (options) {
 				    		gutil.log(gutil.colors.cyan(remoteOrder + remotePath + "/" + files[i]));
 				    	}
 				    	if(order.length !== 0){
-				    		fs.open("test.txt","w",function(e,fd){
+				    		fs.open(loggerFile,"w",function(e,fd){
 				    			if(e){
 				    				console.log(e);
 				    			}else{
+				    				fs.writeSync(fd,"[Gulp iFtp] 共计："+ order.length+"个文件上传成功 "+ new Date() +"\r\n");
+				    				fs.writeSync(fd,"==========================================================================\r\n");
+				    				fs.writeSync(fd,"\r\n");
+				    				fs.writeSync(fd,"提单路径：\r\n");
 				    				for(var i=0;i<order.length;i++){
 							    		fs.writeSync(fd,order[i].toString() + "\r\n");
+							    	}
+							    	if(expUrl != null){
+							    		fs.writeSync(fd,"\r\n");
+							    		fs.writeSync(fd,"体验地址：\r\n");
+					    				for(var i=0;i<order.length;i++){
+								    		fs.writeSync(fd,order[i].toString().replace(remoteOrder,expUrl) + "\r\n");
+								    	}
+							    	}
+							    	if(proUrl != null){
+							    		fs.writeSync(fd,"\r\n");
+							    		fs.writeSync(fd,"外网地址：\r\n");
+					    				for(var i=0;i<order.length;i++){
+								    		fs.writeSync(fd,order[i].toString().replace(remoteOrder,proUrl) + "\r\n");
+								    	}
 							    	}
 				    			}
 				    		})
