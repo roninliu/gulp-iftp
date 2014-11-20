@@ -1,6 +1,6 @@
 {
   "name": "gulp-iftp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ftp部署文件到服务器,ftp deploy file into server",
   "main": "index.js",
   "scripts": {

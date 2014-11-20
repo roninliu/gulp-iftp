@@ -46,6 +46,8 @@ module.exports = function (options) {
 			cb(new gutil.PluginError(gutil.colors.red("[Error]"), gutil.colors.cyan("Streaming not supported")));
 			return;
 		}
+		
+		console.log(file);
 		var _that = this;
 		var filePath = file.path.slice(0,file.path.lastIndexOf("\\"));
 		var config = {
@@ -54,7 +56,8 @@ module.exports = function (options) {
 		    host: options.host,
 		    port: options.port,
 		    localRoot: filePath,
-		    remoteRoot: remotePath
+		    remoteRoot: remotePath,
+		    exclude: ['.git',".svn"]
 		}
 		var ftp = new JSFtp(options);
 		var files = [];
@@ -111,7 +114,7 @@ module.exports = function (options) {
 				    	}
 				    	gutil.log(gutil.colors.green("[INFO]"),gutil.colors.green("All upload has been completed!"))
 						ftp.raw.quit();
-						cb(null, file);
+						cb(null, null);
 					}
 				});
 			}

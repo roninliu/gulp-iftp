@@ -14,7 +14,7 @@ npm install gulp-iftp
 var ftp = requrie("gulp-iftp");
 
 gulp.task("publish",function(){
-	return gulp.src("./dist/*")
+	return gulp.src("./dist/index.html")
         .pipe(ftp({
           host:"your host address",
           port:"your host port",
@@ -28,6 +28,7 @@ gulp.task("publish",function(){
         }))
 })
 ```
+说明：gulp.src("./dist/index.html"),必须给一个启动插件的文件，如果没有插件将不执行任何动作，只需要给一个已经存在的文件名，不能使用“*”代替，使用“*”将导致文件多次上传，以及重复输出logger
 ### 参数
 ```
 host:服务器地址(必须)
