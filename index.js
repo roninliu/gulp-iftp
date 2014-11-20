@@ -46,8 +46,6 @@ module.exports = function (options) {
 			cb(new gutil.PluginError(gutil.colors.red("[Error]"), gutil.colors.cyan("Streaming not supported")));
 			return;
 		}
-		
-		console.log(file);
 		var _that = this;
 		var filePath = file.path.slice(0,file.path.lastIndexOf("\\"));
 		var config = {
