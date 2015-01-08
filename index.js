@@ -9,7 +9,17 @@ var FtpDeploy = require('ftp-deploy');
 JSFtp = require('jsftp-mkdirp')(JSFtp);
 var ftpDeploy = new FtpDeploy();
 
-
+/**
+ * host:服务器地址(必须)
+ * port：服务器端口(必须)
+ * user：ftp账户(必须)
+ * pass：ftp账户密码(必须)
+ * remote: 对应的服务器文件地址(必须)
+ * logger：输出文件列表名称,默认在项目根目录生成文件(可选,默认：logger.txt)
+ * froot: 提单文件前缀(可选，默认：/usr/local/imgcache/htdocs)
+ * exp：体验环境地址(可选，默认null)
+ * pro：正式环境地址(可选，默认null)
+ */
 module.exports = function (options) {
 	options = assign({}, options);
 	options.verbose = process.argv.indexOf('--verbose') !== -1;
